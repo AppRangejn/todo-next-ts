@@ -35,7 +35,11 @@ export function errorHandler(error: unknown): NextResponse {
   console.error('Unhandled API error:', error);
 
   const message =
-    error instanceof Error ? error.message : 'Internal server error';
+    process.env.NODE_ENV === 'production'
+      ? 'Internal server error'
+      : error instanceof Error
+        ? error.message
+        : 'Internal server error';
 
   return NextResponse.json({ message }, { status: 500 });
 }

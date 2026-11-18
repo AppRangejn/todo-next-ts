@@ -1,0 +1,62 @@
+@baseUrl = http://localhost:3000/api
+
+### 0. Логін для отримання токена
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "taras.test@example.com",
+  "password": "password123"
+}
+
+###
+@token = {{login.response.body.token}}
+
+### 1. Створюємо задачу для тестування оновлення та видалення (201)
+# @name createTask
+POST {{baseUrl}}/tasks
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "Тестова задача під редагування",
+  "description": "Початковий опис"
+}
+
+###
+@taskId = {{createTask.response.body.task.id}}
+
+### 2. Оновити статус задачі на 'done' та змінити заголовок (200)
+PATCH {{baseUrl}}/tasks/{{taskId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "Оновлена задача",
+  "status": "done"
+}
+
+### 3. Помилка порожнього тіла при оновленні (спрацьовує .test('at-least-one-field')) (400)
+PATCH {{baseUrl}}/tasks/{{taskId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{}
+
+### 4. Помилка невалідного ID в URL (400)
+PATCH {{baseUrl}}/tasks/abc
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "todo"
+}
+
+### 5. Видалити тестову задачу (200)
+DELETE {{baseUrl}}/tasks/{{taskId}}
+Authorization: Bearer {{token}}
+
+### 6. Повторне видалення вже видаленої задачі (404)
+DELETE {{baseUrl}}/tasks/{{taskId}}
+Authorization: Bearer {{token}}

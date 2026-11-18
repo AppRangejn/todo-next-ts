@@ -23,9 +23,10 @@ export function getAuthUser(req: NextRequest): JwtPayload {
   }
 
   const token = authHeader.split(' ')[1];
+  const secret = getJwtSecret();
 
   try {
-    return jwt.verify(token, getJwtSecret()) as JwtPayload;
+    return jwt.verify(token, secret) as JwtPayload;
   } catch {
     throw createError(401, 'Invalid or expired token');
   }

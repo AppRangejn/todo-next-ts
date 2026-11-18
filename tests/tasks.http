@@ -1,0 +1,38 @@
+@baseUrl = http://localhost:3000/api
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjExLCJlbWFpbCI6InRhcmFzLnRlc3RAZXhhbXBsZS5jb20iLCJpYXQiOjE3OTQ5OTYyMDIsImV4cCI6MTc5NTYwMTAwMn0.4DKfKcprAbnAUsGYfBVq2OXOeYyJdXaHcQ6Vuc3ZGps
+
+### 1. Створити нову задачу без статусу — підставиться дефолтний 'todo' (201)
+POST {{baseUrl}}/tasks
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "Купити продукти на вечерю",
+  "description": "Молоко, яйця, куряче філе та спеції"
+}
+
+### 2. Створити задачу зі статусом 'in progress' (201)
+POST {{baseUrl}}/tasks
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "Дописати API роути",
+  "description": "Перевірити роботу задач у REST Client",
+  "status": "in progress"
+}
+
+### 3. Отримати всі задачі поточного користувача (200)
+GET {{baseUrl}}/tasks
+Authorization: Bearer {{token}}
+
+### 4. Фільтрація задач за статусом 'in progress' (200)
+GET {{baseUrl}}/tasks?status=in%20progress
+Authorization: Bearer {{token}}
+
+### 5. Помилка невалідного статусу при фільтрації (400)
+GET {{baseUrl}}/tasks?status=in_progress
+Authorization: Bearer {{token}}
+
+### 6. Спроба запиту без токена авторизації (401)
+GET {{baseUrl}}/tasks

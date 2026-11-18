@@ -1,0 +1,31 @@
+@baseUrl = http://localhost:3000/api
+
+### 1. Успішна реєстрація нового користувача (201)
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "full_name": "Тарас Ковальчук",
+  "email": "taras.test@example.com",
+  "password": "password123"
+}
+
+### 2. Помилка дубліката email (409)
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "full_name": "Тарас Дублікат",
+  "email": "taras.test@example.com",
+  "password": "password123"
+}
+
+### 3. Помилка валідації (порожні/короткі поля) (400)
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "full_name": "Т",
+  "email": "invalid-email",
+  "password": "123"
+}
