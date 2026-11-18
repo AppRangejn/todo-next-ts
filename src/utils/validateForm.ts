@@ -1,29 +1,40 @@
-import { Schema, ValidationError } from 'yup';
+import * as Yup from 'yup';
 
-export type FormValidationResult<T> =
-  | { data: T; errors: null }
-  | { data: null; errors: Record<string, string> };
+export type FormFieldErrors<T> = Partial<Record<keyof T, string>>;
 
-export async function validateForm<T>(
-  schema: Schema<T>,
-  values: unknown,
-): Promise<FormValidationResult<T>> {
+export type ValidationResult<T> =
+  | { isValid: true; data: T; errors: FormFieldErrors<T> }
+  | { isValid: false; data: null; errors: FormFieldErrors<T> };
+
+export async function validateForm<T extends Record<string, unknown>>(
+  schema: Yup.ObjectSchema<Yup.AnyObject>,
+  values: T,
+): Promise<ValidationResult<T>> {
   try {
-    const data = await schema.validate(values, {
+    const validData = (await schema.validate(values, {
       abortEarly: false,
-      stripUnknown: true,
-    });
-    return { data, errors: null };
+    })) as T;
+
+    return {
+      isValid: true,
+      data: validData,
+      errors: {},
+    };
   } catch (err) {
-    if (err instanceof ValidationError) {
-      const errors: Record<string, string> = {};
+    const errors: FormFieldErrors<T> = {};
+
+    if (err instanceof Yup.ValidationError) {
       err.inner.forEach((issue) => {
-        if (issue.path && !errors[issue.path]) {
-          errors[issue.path] = issue.message;
+        if (issue.path && !errors[issue.path as keyof T]) {
+          errors[issue.path as keyof T] = issue.message;
         }
       });
-      return { data: null, errors };
     }
-    throw err;
+
+    return {
+      isValid: false,
+      data: null,
+      errors,
+    };
   }
 }
